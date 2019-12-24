@@ -4,15 +4,8 @@
 class Dimension
 {
 public:
-	Dimension(ProDimension dim)
-	{
-		dimension = dim;
-	}
-	Dimension() {};
-	void setDimension(ProDimension dim)
-	{
-		dimension = dim;
-	}
+	Dimension(ProDimension dim);
+	void setDimension(ProDimension dim);
 	ProWstring* getDimensionText();
 private:
 	ProDimension dimension;
