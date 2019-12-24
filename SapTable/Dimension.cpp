@@ -56,20 +56,6 @@ ProWstring Dimension::getValue()
 	return v[0];
 }
 
-ProWstring Dimension::getPrefix()
-{
-	ProLine pfx;
-	ProDimensionPrefixGet(&dimension, pfx);
-	return pfx;
-}
-
-ProWstring Dimension::getSuffix()
-{
-	ProLine sfx;
-	ProDimensionSuffixGet(&dimension, sfx);
-	return sfx;
-}
-
 ProWstring Dimension::getTolerance()
 {
 	ProWstring* tol;

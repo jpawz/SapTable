@@ -16,8 +16,6 @@ public:
 	ProWstring* getDimensionText();
 private:
 	ProDimension dimension;
-	ProWstring getPrefix();
-	ProWstring getSuffix();
 	ProWstring getTolerance();
 	ProWstring getValue();
 };

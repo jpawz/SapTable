@@ -14,7 +14,6 @@ using namespace std;
 
 static uiCmdAccessState AccessAvailable(uiCmdAccessMode);
 void printMessage(string);
-void createSapTable();
 void selectDimensions();
 char* strToCharArr(string);
 void initializeMsgFile();
@@ -58,12 +57,6 @@ extern "C" void user_terminate()
 {
 	return;
 }
-
-void createSapTable()
-{
-
-}
-
 
 void selectDimensions()
 {
