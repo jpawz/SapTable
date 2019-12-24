@@ -160,9 +160,11 @@
   <ItemGroup>
     <ClCompile Include="Dimension.cpp" />
     <ClCompile Include="SapTable.cpp" />
+    <ClCompile Include="Table.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dimension.h" />
+    <ClInclude Include="Table.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
