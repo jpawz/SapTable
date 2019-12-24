@@ -75,8 +75,6 @@ void makeTableFromDimensions()
 		ProSelectionModelitemGet(selection[i], &dim);
 		Dimension dimension(dim);
 		table.insertDimension(dimension);
-		if (i == 9)
-			break;
 	}
 	ProWindowActivate(winId);
 }

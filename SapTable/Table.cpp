@@ -10,7 +10,7 @@ Table::Table(ProDrawing drw)
 
 void Table::insertDimension(Dimension dimension)
 {
-	if (lastRowIndex >= 10)
+	if (lastRowIndex > 10)
 		return;
 	ProDwgtableTextEnter(&table, 2, lastRowIndex, dimension.getDimensionText());
 	formatCell(lastRowIndex);
