@@ -9,6 +9,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+void trimTrailingZeros(char[], int);
+void trimTrailingZerosOfUpperAndLowerLimits(char[], char[], int);
+
 Dimension::Dimension(ProDimension dim)
 {
 	dimension = dim;
@@ -53,10 +56,12 @@ ProWstring Dimension::getValue()
 	ProDimensionDecimalsGet(&dimension, &decimals);
 	ProDimensionValueGet(&dimension, &value);
 	ProWstring* v;
-	char vv[10];
+	static char vv[10];
 	ProArrayAlloc(1, sizeof(wchar_t), 1, (ProArray*)&v);
 	v[0] = (wchar_t*)calloc(PRO_COMMENT_SIZE, sizeof(wchar_t));
 	sprintf(vv, "%.*f", decimals, value);
+	if (decimals > 0)
+		trimTrailingZeros(vv, 10);
 	ProStringToWstring(v[0], vv);
 	return v[0];
 }
@@ -65,15 +70,9 @@ ProWstring Dimension::getTolerance()
 {
 	ProWstring* tol;
 	double upper_limit, lower_limit;
-	int decimals;
 	ProDimToleranceType tol_type;
 	ProDimensionToltypeGet(&dimension, &tol_type);
 	ProDimensionDisplayedToleranceGet(&dimension, &upper_limit, &lower_limit);
-	ProDimensionTolerancedecimalsGet(&dimension, &decimals);
-	if (decimals > 4)
-	{
-		ProDimensionDecimalsGet(&dimension, &decimals);
-	}
 	ProArrayAlloc(1, sizeof(wchar_t), 1, (ProArray*)&tol);
 	tol[0] = (wchar_t*)calloc(PRO_COMMENT_SIZE, sizeof(wchar_t));
 
@@ -85,36 +84,9 @@ ProWstring Dimension::getTolerance()
 		char tol_text[100];
 		static char upper_text[20];
 		static char lower_text[20];
-		sprintf(upper_text, "%+.*f", decimals, upper_limit);
-		sprintf(lower_text, "%+.*f", decimals, (lower_limit * -1.0));
-		for (int i = 19; i > 0; i--)
-		{
-			if (upper_text[i] == 0 && lower_text == 0)
-			{
-				continue;
-			}
-			if ((upper_text[i] == '0' && upper_text[i - 1] == '0') &&
-				(lower_text[i] == '0' && lower_text[i - 1] == '0'))
-			{
-				upper_text[i] = 0;
-				lower_text[i] = 0;
-			}
-			else if ((upper_text[i] == '0' && upper_text[i - 1] == '.') &&
-				(lower_text[i] == '0' && lower_text[i - 1] == '.'))
-			{
-				upper_text[i] = 0;
-				upper_text[i - 1] = 0;
-				lower_text[i] = 0;
-				lower_text[i - 1] = 0;
-				break;
-			}
-			else
-			{
-				upper_text[i] = 0;
-				lower_text[i] = 0;
-				break;
-			}
-		}
+		sprintf(upper_text, "%+f", upper_limit);
+		sprintf(lower_text, "%+f", (lower_limit * -1.0));
+		trimTrailingZerosOfUpperAndLowerLimits(upper_text, lower_text, 20);
 		sprintf(tol_text, "@+%s@#@-%s@#", upper_text, lower_text);
 		ProStringToWstring(tol[0], tol_text);
 		break;
@@ -129,29 +101,8 @@ ProWstring Dimension::getTolerance()
 		ProArrayAlloc(1, sizeof(wchar_t), 1, (ProArray*)&tol_v);
 		tol_s[0] = (wchar_t*)calloc(PRO_COMMENT_SIZE, sizeof(wchar_t));
 		tol_v[0] = (wchar_t*)calloc(PRO_COMMENT_SIZE, sizeof(wchar_t));
-		sprintf(tol_value, "%.*f", decimals, upper_limit);
-		for (int i = 19; i > 0; i--)
-		{
-			if (tol_value[i] == 0)
-			{
-				continue;
-			}
-			if (tol_value[i] == '0' && tol_value[i - 1] == '0')
-			{
-				tol_value[i] = 0;
-			}
-			else if (tol_value[i] == '0' && tol_value[i - 1] == '.')
-			{
-				tol_value[i] = 0;
-				tol_value[i - 1] = 0;
-				break;
-			}
-			else
-			{
-				tol_value[i] = 0;
-				break;
-			}
-		}
+		sprintf(tol_value, "%f", upper_limit);
+		trimTrailingZeros(tol_value, 20);
 		ProStringToWstring(tol_s[0], plus_minus_sym);
 		ProStringToWstring(tol_v[0], tol_value);
 		ProWstringConcatenate(tol_s[0], tol[0], PRO_VALUE_UNUSED);
@@ -161,4 +112,58 @@ ProWstring Dimension::getTolerance()
 		break;
 	}
 	return tol[0];
+}
+
+void trimTrailingZeros(char value[], int textLength)
+{
+	for (int i = textLength - 1; i > 0; i--)
+	{
+		if (value[i] == 0)
+		{
+			continue;
+		}
+		else if ((value[i] == '0') && (value[i - 1] == '.'))
+		{
+			value[i] = 0;
+			value[i - 1] = 0;
+			break;
+		}
+		else if (value[i] == '0')
+		{
+			value[i] = 0;
+		}
+		else
+		{
+			break;
+		}
+	}
+}
+
+void trimTrailingZerosOfUpperAndLowerLimits(char upper_text[], char lower_text[], int textLength)
+{
+	for (int i = textLength - 1; i > 0; i--)
+	{
+		if ((upper_text[i] == 0) && (lower_text[i] == 0))
+		{
+			continue;
+		}
+		else if (((upper_text[i] == '0') && (upper_text[i - 1] == '.')) &&
+			((lower_text[i] == '0') && (lower_text[i - 1] == '.')))
+		{
+			upper_text[i] = 0;
+			upper_text[i - 1] = 0;
+			lower_text[i] = 0;
+			lower_text[i - 1] = 0;
+			break;
+		}
+		else if ((upper_text[i] == '0') && (lower_text[i] == '0'))
+		{
+			upper_text[i] = 0;
+			lower_text[i] = 0;
+		}
+		else
+		{
+			break;
+		}
+	}
 }
