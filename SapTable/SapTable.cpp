@@ -66,12 +66,11 @@ void makeTableFromDimensions()
 
 	err = ProSelect(strToCharArr(filter), 10, NULL, NULL, NULL, NULL, &selection, &sel_count);
 	ProDimension dim;
-	Dimension dimension;
 	Table table(drawing);
 	for (int i = 0; i < sel_count; i++)
 	{
 		ProSelectionModelitemGet(selection[i], &dim);
-		dimension.setDimension(dim);
+		Dimension dimension(dim);
 		table.insertDimension(dimension);
 		if (i == 9)
 			break;

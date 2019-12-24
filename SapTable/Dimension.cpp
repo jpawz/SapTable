@@ -14,11 +14,6 @@ Dimension::Dimension(ProDimension dim)
 	dimension = dim;
 }
 
-void Dimension::setDimension(ProDimension dim)
-{
-	dimension = dim;
-}
-
 ProWstring* Dimension::getDimensionText()
 {
 	ProWstring* completeDimension;

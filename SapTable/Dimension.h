@@ -5,7 +5,6 @@ class Dimension
 {
 public:
 	Dimension(ProDimension dim);
-	void setDimension(ProDimension dim);
 	ProWstring* getDimensionText();
 private:
 	ProDimension dimension;
