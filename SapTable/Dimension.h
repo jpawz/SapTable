@@ -8,6 +8,7 @@ public:
 	ProWstring* getDimensionText();
 private:
 	ProDimension dimension;
+	ProDimensiontype dimensionType;
 	ProWstring getTolerance();
 	ProWstring getValue();
 };

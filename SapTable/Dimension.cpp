@@ -9,6 +9,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+char plus_minus_sym[] = { '\001', '#', '\002', '\000' };
+char degree_sym[] = { '\001', '$', '\002', '\000' };
+
 void trimTrailingZeros(char[], int);
 void trimTrailingZerosOfUpperAndLowerLimits(char[], char[], int);
 
@@ -24,7 +27,7 @@ ProWstring* Dimension::getDimensionText()
 	completeDimension[0] = (wchar_t*)calloc(PRO_COMMENT_SIZE, sizeof(wchar_t));
 	ProLine* dim_text;
 	ProDimensionTextGet(&dimension, &dim_text);
-
+	ProDimensionTypeGet(&dimension, &dimensionType);
 	char dim_char_arr[200];
 	ProWstringToString(dim_char_arr, dim_text[0]);
 	char* beg_end[2];
@@ -63,6 +66,15 @@ ProWstring Dimension::getValue()
 	if (decimals > 0)
 		trimTrailingZeros(vv, 10);
 	ProStringToWstring(v[0], vv);
+	if (dimensionType == PRODIMTYPE_ANGLE)
+	{
+		ProWstring* degree_s;
+		ProArrayAlloc(1, sizeof(wchar_t), 1, (ProArray*)&degree_s);
+		degree_s[0] = (wchar_t*)calloc(PRO_COMMENT_SIZE, sizeof(wchar_t));
+		ProStringToWstring(degree_s[0], degree_sym);
+		ProWstringConcatenate(degree_s[0], v[0], PRO_VALUE_UNUSED);
+		ProArrayFree((ProArray*)&degree_s);
+	}
 	return v[0];
 }
 
@@ -87,7 +99,14 @@ ProWstring Dimension::getTolerance()
 		sprintf(upper_text, "%+f", upper_limit);
 		sprintf(lower_text, "%+f", (lower_limit * -1.0));
 		trimTrailingZerosOfUpperAndLowerLimits(upper_text, lower_text, 20);
-		sprintf(tol_text, "@+%s@#@-%s@#", upper_text, lower_text);
+		if (dimensionType == PRODIMTYPE_ANGLE)
+		{
+			sprintf(tol_text, "@+%s%s@#@-%s%s@#", upper_text, degree_sym, lower_text, degree_sym);
+		}
+		else
+		{
+			sprintf(tol_text, "@+%s@#@-%s@#", upper_text, lower_text);
+		}
 		ProStringToWstring(tol[0], tol_text);
 		break;
 	case PRO_TOL_LIMITS:
@@ -95,7 +114,6 @@ ProWstring Dimension::getTolerance()
 	case PRO_TOL_PLUS_MINUS_SYM:
 		ProWstring* tol_s;
 		ProWstring* tol_v;
-		char plus_minus_sym[] = { '\001', '#', '\002', '\000' };
 		static char tol_value[20];
 		ProArrayAlloc(1, sizeof(wchar_t), 1, (ProArray*)&tol_s);
 		ProArrayAlloc(1, sizeof(wchar_t), 1, (ProArray*)&tol_v);
@@ -107,6 +125,15 @@ ProWstring Dimension::getTolerance()
 		ProStringToWstring(tol_v[0], tol_value);
 		ProWstringConcatenate(tol_s[0], tol[0], PRO_VALUE_UNUSED);
 		ProWstringConcatenate(tol_v[0], tol[0], PRO_VALUE_UNUSED);
+		if (dimensionType == PRODIMTYPE_ANGLE)
+		{
+			ProWstring* degree_s;
+			ProArrayAlloc(1, sizeof(wchar_t), 1, (ProArray*)&degree_s);
+			degree_s[0] = (wchar_t*)calloc(PRO_COMMENT_SIZE, sizeof(wchar_t));
+			ProStringToWstring(degree_s[0], degree_sym);
+			ProWstringConcatenate(degree_s[0], tol[0], PRO_VALUE_UNUSED);
+			ProArrayFree((ProArray*)&degree_s);
+		}
 		ProArrayFree((ProArray*)&tol_s);
 		ProArrayFree((ProArray*)&tol_v);
 		break;
