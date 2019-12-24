@@ -7,6 +7,7 @@ Create "critical dimensions table" with values from selected dimensions.
 #include <ProDwgtable.h>
 #include <ProMenuBar.h>
 #include <ProMessage.h>
+#include <ProWindows.h>
 #include <Windows.h>
 #include <xstring>
 #include "Table.h"
@@ -55,6 +56,8 @@ extern "C" void user_terminate()
 
 void makeTableFromDimensions()
 {
+	int winId;
+	ProWindowCurrentGet(&winId);
 	ProDrawing drawing;
 	ProMdlCurrentGet((ProMdl*)&drawing);
 
@@ -75,6 +78,7 @@ void makeTableFromDimensions()
 		if (i == 9)
 			break;
 	}
+	ProWindowActivate(winId);
 }
 
 void printMessage(string message)
