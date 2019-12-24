@@ -158,7 +158,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Dimension.cpp" />
     <ClCompile Include="SapTable.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Dimension.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
