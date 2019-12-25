@@ -4,7 +4,12 @@
 Table::Table(ProDrawing drw)
 {
 	lastRowIndex = 1;
-	createSapTable(drw);
+	drawing = drw;
+}
+
+void Table::prepareTable()
+{
+	createSapTable();
 	prepareFirstColumn();
 }
 
@@ -17,25 +22,28 @@ void Table::insertDimension(Dimension dimension)
 	lastRowIndex++;
 }
 
-void Table::createSapTable(ProDrawing drw)
+void Table::setTableOrigin()
+{
+	ProMouseButton but;
+	ProMousePickGet(PRO_LEFT_BUTTON, &but, tableOrigin);
+}
+
+void Table::createSapTable()
 {
 	ProDwgtabledata table_data;
-	ProPoint3d origin;
-	ProMouseButton but;
 	double width = 2;
 	double height = 1;
 
 	ProHorzJust justifications[NUMBER_OF_COLUMNS];
-	for (int i = 0; i < NUMBER_OF_COLUMNS; i++) justifications[i] = PROHORZJUST_LEFT;
-
-	ProMousePickGet(PRO_LEFT_BUTTON, &but, origin);
+	for (int i = 0; i < NUMBER_OF_COLUMNS; i++)
+		justifications[i] = PROHORZJUST_LEFT;
 
 	ProDwgtabledataAlloc(&table_data);
-	ProDwgtabledataOriginSet(table_data, origin);
+	ProDwgtabledataOriginSet(table_data, tableOrigin);
 	ProDwgtabledataColumnsSet(table_data, 1, &width, justifications);
 	ProDwgtabledataRowsSet(table_data, 1, &height);
 	ProDwgtabledataSizetypeSet(table_data, PRODWGTABLESIZE_CHARACTERS);
-	ProDrawingTableCreate((ProDrawing)(drw), table_data, 1, &table);
+	ProDrawingTableCreate((ProDrawing)(drawing), table_data, 1, &table);
 	ProDwgtableColumnAdd(&table, 1, 1, NUMBER_OF_COLUMNS);
 	ProDwgtableRowAdd(&table, 1, 1, 1);
 	ProDwgtableRowAdd(&table, 1, 1, 1);

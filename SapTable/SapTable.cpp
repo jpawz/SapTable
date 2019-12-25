@@ -70,6 +70,9 @@ void makeTableFromDimensions()
 	err = ProSelect(strToCharArr(filter), 10, NULL, NULL, NULL, NULL, &selection, &sel_count);
 	ProDimension dim;
 	Table table(drawing);
+	printMessage("note location");
+	table.setTableOrigin();
+	table.prepareTable();
 	for (int i = 0; i < sel_count; i++)
 	{
 		ProSelectionModelitemGet(selection[i], &dim);
