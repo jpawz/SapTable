@@ -80,13 +80,13 @@ ProWstring Dimension::getValue()
 
 ProWstring Dimension::getTolerance()
 {
-	ProWstring* tol;
+	ProWstring* toleranceText;
 	double upper_limit, lower_limit;
 	ProDimToleranceType tol_type;
 	ProDimensionToltypeGet(&dimension, &tol_type);
 	ProDimensionDisplayedToleranceGet(&dimension, &upper_limit, &lower_limit);
-	ProArrayAlloc(1, sizeof(wchar_t), 1, (ProArray*)&tol);
-	tol[0] = (wchar_t*)calloc(PRO_COMMENT_SIZE, sizeof(wchar_t));
+	ProArrayAlloc(1, sizeof(wchar_t), 1, (ProArray*)&toleranceText);
+	toleranceText[0] = (wchar_t*)calloc(PRO_COMMENT_SIZE, sizeof(wchar_t));
 
 	switch (tol_type)
 	{
@@ -107,38 +107,27 @@ ProWstring Dimension::getTolerance()
 		{
 			sprintf(tol_text, "@+%s@#@-%s@#", upper_text, lower_text);
 		}
-		ProStringToWstring(tol[0], tol_text);
+		ProStringToWstring(toleranceText[0], tol_text);
 		break;
 	case PRO_TOL_LIMITS:
 		break;
 	case PRO_TOL_PLUS_MINUS_SYM:
-		ProWstring* tol_s;
-		ProWstring* tol_v;
 		static char tol_value[20];
-		ProArrayAlloc(1, sizeof(wchar_t), 1, (ProArray*)&tol_s);
-		ProArrayAlloc(1, sizeof(wchar_t), 1, (ProArray*)&tol_v);
-		tol_s[0] = (wchar_t*)calloc(PRO_COMMENT_SIZE, sizeof(wchar_t));
-		tol_v[0] = (wchar_t*)calloc(PRO_COMMENT_SIZE, sizeof(wchar_t));
+		char tol_value_with_symbol[20];
 		sprintf(tol_value, "%f", upper_limit);
 		trimTrailingZeros(tol_value, 20);
-		ProStringToWstring(tol_s[0], plus_minus_sym);
-		ProStringToWstring(tol_v[0], tol_value);
-		ProWstringConcatenate(tol_s[0], tol[0], PRO_VALUE_UNUSED);
-		ProWstringConcatenate(tol_v[0], tol[0], PRO_VALUE_UNUSED);
 		if (dimensionType == PRODIMTYPE_ANGLE)
 		{
-			ProWstring* degree_s;
-			ProArrayAlloc(1, sizeof(wchar_t), 1, (ProArray*)&degree_s);
-			degree_s[0] = (wchar_t*)calloc(PRO_COMMENT_SIZE, sizeof(wchar_t));
-			ProStringToWstring(degree_s[0], degree_sym);
-			ProWstringConcatenate(degree_s[0], tol[0], PRO_VALUE_UNUSED);
-			ProArrayFree((ProArray*)&degree_s);
+			sprintf(tol_value_with_symbol, "%s%s%s", plus_minus_sym, tol_value, degree_sym);
 		}
-		ProArrayFree((ProArray*)&tol_s);
-		ProArrayFree((ProArray*)&tol_v);
+		else
+		{
+			sprintf(tol_value_with_symbol, "%s%s", plus_minus_sym, tol_value);
+		}
+		ProStringToWstring(toleranceText[0], tol_value_with_symbol);
 		break;
 	}
-	return tol[0];
+	return toleranceText[0];
 }
 
 void trimTrailingZeros(char value[], int textLength)
