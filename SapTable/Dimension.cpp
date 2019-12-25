@@ -75,11 +75,11 @@ ProWstring Dimension::getValue()
 	int decimals;
 	ProDimensionDecimalsGet(&dimension, &decimals);
 	ProDimensionValueGet(&dimension, &value);
-	static char vv[10];
-	sprintf(vv, "%.*f", decimals, value);
+	static char formattedValue[20];
+	sprintf_s(formattedValue, 20, "%.*f", decimals, value);
 	if (decimals > 0)
-		trimTrailingZeros(vv, 10);
-	ProStringToWstring(dimensionValue[0], vv);
+		trimTrailingZeros(formattedValue, 10);
+	ProStringToWstring(dimensionValue[0], formattedValue);
 	if (dimensionType == PRODIMTYPE_ANGLE)
 	{
 		ProWstring* degree_s;
@@ -107,16 +107,16 @@ ProWstring Dimension::getTolerance()
 		char tol_text[100];
 		static char upper_text[20];
 		static char lower_text[20];
-		sprintf(upper_text, "%+f", upper_limit);
-		sprintf(lower_text, "%+f", (lower_limit * -1.0));
+		sprintf_s(upper_text, 20, "%+f", upper_limit);
+		sprintf_s(lower_text, 20, "%+f", (lower_limit * -1.0));
 		trimTrailingZerosOfUpperAndLowerLimits(upper_text, lower_text, 20);
 		if (dimensionType == PRODIMTYPE_ANGLE)
 		{
-			sprintf(tol_text, "@+%s%s@#@-%s%s@#", upper_text, degree_sym, lower_text, degree_sym);
+			sprintf_s(tol_text, 100, "@+%s%s@#@-%s%s@#", upper_text, degree_sym, lower_text, degree_sym);
 		}
 		else
 		{
-			sprintf(tol_text, "@+%s@#@-%s@#", upper_text, lower_text);
+			sprintf_s(tol_text, 100, "@+%s@#@-%s@#", upper_text, lower_text);
 		}
 		ProStringToWstring(toleranceText[0], tol_text);
 		break;
@@ -125,15 +125,15 @@ ProWstring Dimension::getTolerance()
 	case PRO_TOL_PLUS_MINUS_SYM:
 		static char tol_value[20];
 		char tol_value_with_symbol[20];
-		sprintf(tol_value, "%f", upper_limit);
+		sprintf_s(tol_value, 20, "%f", upper_limit);
 		trimTrailingZeros(tol_value, 20);
 		if (dimensionType == PRODIMTYPE_ANGLE)
 		{
-			sprintf(tol_value_with_symbol, "%s%s%s", plus_minus_sym, tol_value, degree_sym);
+			sprintf_s(tol_value_with_symbol, 20, "%s%s%s", plus_minus_sym, tol_value, degree_sym);
 		}
 		else
 		{
-			sprintf(tol_value_with_symbol, "%s%s", plus_minus_sym, tol_value);
+			sprintf_s(tol_value_with_symbol, 20, "%s%s", plus_minus_sym, tol_value);
 		}
 		ProStringToWstring(toleranceText[0], tol_value_with_symbol);
 		break;
