@@ -19,13 +19,26 @@ Dimension::Dimension(ProDimension dim)
 {
 	dimension = dim;
 	ProDimensionTypeGet(&dimension, &dimensionType);
+
+	ProArrayAlloc(1, sizeof(wchar_t), 1, (ProArray*)&completeDimension);
+	completeDimension[0] = (wchar_t*)calloc(PRO_COMMENT_SIZE, sizeof(wchar_t));
+
+	ProArrayAlloc(1, sizeof(wchar_t), 1, (ProArray*)&dimensionValue);
+	dimensionValue[0] = (wchar_t*)calloc(PRO_COMMENT_SIZE, sizeof(wchar_t));
+
+	ProArrayAlloc(1, sizeof(wchar_t), 1, (ProArray*)&toleranceText);
+	toleranceText[0] = (wchar_t*)calloc(PRO_COMMENT_SIZE, sizeof(wchar_t));
+}
+
+Dimension::~Dimension()
+{
+	ProArrayFree((ProArray*)&toleranceText);
+	ProArrayFree((ProArray*)&dimensionValue);
+	ProArrayFree((ProArray*)&completeDimension);
 }
 
 ProWstring* Dimension::getDimensionText()
 {
-	ProWstring* completeDimension;
-	ProArrayAlloc(1, sizeof(wchar_t), 1, (ProArray*)&completeDimension);
-	completeDimension[0] = (wchar_t*)calloc(PRO_COMMENT_SIZE, sizeof(wchar_t));
 	ProLine* dim_text;
 	ProDimensionTextGet(&dimension, &dim_text);
 	char dim_char_arr[PRO_COMMENT_SIZE];
@@ -50,6 +63,9 @@ ProWstring* Dimension::getDimensionText()
 	ProWstringConcatenate(tolerance, completeDimension[0], PRO_VALUE_UNUSED);
 	ProWstringConcatenate(end[0], completeDimension[0], PRO_VALUE_UNUSED);
 
+	ProArrayFree((ProArray*)&beggining);
+	ProArrayFree((ProArray*)&end);
+
 	return completeDimension;
 }
 
@@ -59,35 +75,29 @@ ProWstring Dimension::getValue()
 	int decimals;
 	ProDimensionDecimalsGet(&dimension, &decimals);
 	ProDimensionValueGet(&dimension, &value);
-	ProWstring* v;
 	static char vv[10];
-	ProArrayAlloc(1, sizeof(wchar_t), 1, (ProArray*)&v);
-	v[0] = (wchar_t*)calloc(PRO_COMMENT_SIZE, sizeof(wchar_t));
 	sprintf(vv, "%.*f", decimals, value);
 	if (decimals > 0)
 		trimTrailingZeros(vv, 10);
-	ProStringToWstring(v[0], vv);
+	ProStringToWstring(dimensionValue[0], vv);
 	if (dimensionType == PRODIMTYPE_ANGLE)
 	{
 		ProWstring* degree_s;
 		ProArrayAlloc(1, sizeof(wchar_t), 1, (ProArray*)&degree_s);
 		degree_s[0] = (wchar_t*)calloc(PRO_COMMENT_SIZE, sizeof(wchar_t));
 		ProStringToWstring(degree_s[0], degree_sym);
-		ProWstringConcatenate(degree_s[0], v[0], PRO_VALUE_UNUSED);
+		ProWstringConcatenate(degree_s[0], dimensionValue[0], PRO_VALUE_UNUSED);
 		ProArrayFree((ProArray*)&degree_s);
 	}
-	return v[0];
+	return dimensionValue[0];
 }
 
 ProWstring Dimension::getTolerance()
 {
-	ProWstring* toleranceText;
 	double upper_limit, lower_limit;
 	ProDimToleranceType tol_type;
 	ProDimensionToltypeGet(&dimension, &tol_type);
 	ProDimensionDisplayedToleranceGet(&dimension, &upper_limit, &lower_limit);
-	ProArrayAlloc(1, sizeof(wchar_t), 1, (ProArray*)&toleranceText);
-	toleranceText[0] = (wchar_t*)calloc(PRO_COMMENT_SIZE, sizeof(wchar_t));
 
 	switch (tol_type)
 	{
