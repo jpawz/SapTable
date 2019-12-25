@@ -18,6 +18,7 @@ void trimTrailingZerosOfUpperAndLowerLimits(char[], char[], int);
 Dimension::Dimension(ProDimension dim)
 {
 	dimension = dim;
+	ProDimensionTypeGet(&dimension, &dimensionType);
 }
 
 ProWstring* Dimension::getDimensionText()
@@ -27,20 +28,20 @@ ProWstring* Dimension::getDimensionText()
 	completeDimension[0] = (wchar_t*)calloc(PRO_COMMENT_SIZE, sizeof(wchar_t));
 	ProLine* dim_text;
 	ProDimensionTextGet(&dimension, &dim_text);
-	ProDimensionTypeGet(&dimension, &dimensionType);
-	char dim_char_arr[200];
+	char dim_char_arr[PRO_COMMENT_SIZE];
 	ProWstringToString(dim_char_arr, dim_text[0]);
-	char* beg_end[2];
-	beg_end[0] = strtok(dim_char_arr, "@D");
-	beg_end[1] = strtok(NULL, "@D");
+	char* beforeDimSymbol;
+	char* afterDimSymbol;
+	beforeDimSymbol = strtok(dim_char_arr, "@D");
+	afterDimSymbol = strtok(NULL, "@D");
 	ProWstring* beggining;
 	ProWstring* end;
 	ProArrayAlloc(1, sizeof(wchar_t), 1, (ProArray*)&beggining);
 	beggining[0] = (wchar_t*)calloc(PRO_COMMENT_SIZE, sizeof(wchar_t));
 	ProArrayAlloc(1, sizeof(wchar_t), 1, (ProArray*)&end);
 	end[0] = (wchar_t*)calloc(PRO_COMMENT_SIZE, sizeof(wchar_t));
-	ProStringToWstring(beggining[0], beg_end[0]);
-	ProStringToWstring(end[0], beg_end[1]);
+	ProStringToWstring(beggining[0], beforeDimSymbol);
+	ProStringToWstring(end[0], afterDimSymbol);
 
 	ProWstringConcatenate(beggining[0], completeDimension[0], PRO_VALUE_UNUSED);
 	ProWstring value = getValue();
