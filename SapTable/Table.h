@@ -11,11 +11,13 @@ public:
 private:
 	ProDwgtable table;
 	ProDrawing drawing;
-	static const int NUMBER_OF_COLUMNS = 10;
 	ProPoint3d tableOrigin;
 	int lastRowIndex;
 	void createSapTable();
 	void prepareFirstColumn();
 	void formatCell(int);
+	void formatCell(int, int, double, horizontal_just, vertical_just);
+	void formatTemplateCells();
 	bool findUpperLowerTolerance(char[], int);
+	double getValueInDrawingUnits(double);
 };
