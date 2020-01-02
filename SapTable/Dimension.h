@@ -8,11 +8,15 @@ public:
 	~Dimension();
 	ProWstring* getDimensionText();
 private:
+	bool dimensionIsFake;
 	ProDimension dimension;
+	ProWstring* beforeAtSymbol;
+	ProWstring* afterAtSymbol;
 	ProDimensiontype dimensionType;
 	ProWstring* dimensionValue;
 	ProWstring* toleranceText;
 	ProWstring* completeDimension;
 	ProWstring getTolerance();
 	ProWstring getValue();
+	void splitDimension();
 };

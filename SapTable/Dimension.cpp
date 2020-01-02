@@ -39,34 +39,58 @@ Dimension::~Dimension()
 
 ProWstring* Dimension::getDimensionText()
 {
+	splitDimension();
+	ProWstringConcatenate(beforeAtSymbol[0], completeDimension[0], PRO_VALUE_UNUSED);
+	if (!dimensionIsFake)
+	{
+		ProWstring value = getValue();
+		ProWstringConcatenate(value, completeDimension[0], PRO_VALUE_UNUSED);
+
+		ProWstring tolerance = getTolerance();
+		ProWstringConcatenate(tolerance, completeDimension[0], PRO_VALUE_UNUSED);
+	}
+
+	ProWstringConcatenate(afterAtSymbol[0], completeDimension[0], PRO_VALUE_UNUSED);
+
+	ProArrayFree((ProArray*)&beforeAtSymbol);
+	ProArrayFree((ProArray*)&afterAtSymbol);
+
+	return completeDimension;
+}
+
+void Dimension::splitDimension()
+{
 	ProLine* dim_text;
 	ProDimensionTextGet(&dimension, &dim_text);
 	char dim_char_arr[PRO_COMMENT_SIZE];
 	ProWstringToString(dim_char_arr, dim_text[0]);
-	char* beforeDimSymbol;
+	char* beforeDimSymbol = dim_char_arr;
 	char* afterDimSymbol;
-	beforeDimSymbol = strtok(dim_char_arr, "@D");
-	afterDimSymbol = strtok(NULL, "@D");
-	ProWstring* beggining;
-	ProWstring* end;
-	ProArrayAlloc(1, sizeof(wchar_t), 1, (ProArray*)&beggining);
-	beggining[0] = (wchar_t*)calloc(PRO_COMMENT_SIZE, sizeof(wchar_t));
-	ProArrayAlloc(1, sizeof(wchar_t), 1, (ProArray*)&end);
-	end[0] = (wchar_t*)calloc(PRO_COMMENT_SIZE, sizeof(wchar_t));
-	ProStringToWstring(beggining[0], beforeDimSymbol);
-	ProStringToWstring(end[0], afterDimSymbol);
 
-	ProWstringConcatenate(beggining[0], completeDimension[0], PRO_VALUE_UNUSED);
-	ProWstring value = getValue();
-	ProWstringConcatenate(value, completeDimension[0], PRO_VALUE_UNUSED);
-	ProWstring tolerance = getTolerance();
-	ProWstringConcatenate(tolerance, completeDimension[0], PRO_VALUE_UNUSED);
-	ProWstringConcatenate(end[0], completeDimension[0], PRO_VALUE_UNUSED);
+	for (int i = 0; i < PRO_COMMENT_SIZE - 1; i++)
+	{
+		if ((dim_char_arr[i] == '@') && ((dim_char_arr[i + 1] == 'D')))
+		{
+			dim_char_arr[i] = 0;
+			afterDimSymbol = &dim_char_arr[i + 2];
+			dimensionIsFake = false;
+			break;
+		}
+		else if ((dim_char_arr[i] == '@') && (dim_char_arr[i + 1] == 'O'))
+		{
+			dim_char_arr[i] = 0;
+			afterDimSymbol = &dim_char_arr[i + 2];
+			dimensionIsFake = true;
+			break;
+		}
+	}
 
-	ProArrayFree((ProArray*)&beggining);
-	ProArrayFree((ProArray*)&end);
-
-	return completeDimension;
+	ProArrayAlloc(1, sizeof(wchar_t), 1, (ProArray*)&beforeAtSymbol);
+	beforeAtSymbol[0] = (wchar_t*)calloc(PRO_COMMENT_SIZE, sizeof(wchar_t));
+	ProArrayAlloc(1, sizeof(wchar_t), 1, (ProArray*)&afterAtSymbol);
+	afterAtSymbol[0] = (wchar_t*)calloc(PRO_COMMENT_SIZE, sizeof(wchar_t));
+	ProStringToWstring(beforeAtSymbol[0], beforeDimSymbol);
+	ProStringToWstring(afterAtSymbol[0], afterDimSymbol);
 }
 
 ProWstring Dimension::getValue()
