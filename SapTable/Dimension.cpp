@@ -39,18 +39,29 @@ Dimension::~Dimension()
 
 ProWstring* Dimension::getDimensionText()
 {
+	ProBool isBasicDimension;
+	ProDimensionIsBasic(&dimension, &isBasicDimension);
 	splitDimension();
+	if (isBasicDimension)
+	{
+		ProWstringConcatenate((wchar_t*)L"@[", completeDimension[0], PRO_VALUE_UNUSED);
+	}
 	ProWstringConcatenate(beforeAtSymbol[0], completeDimension[0], PRO_VALUE_UNUSED);
 	if (!dimensionIsFake)
 	{
 		ProWstring value = getValue();
 		ProWstringConcatenate(value, completeDimension[0], PRO_VALUE_UNUSED);
 
-		ProWstring tolerance = getTolerance();
-		ProWstringConcatenate(tolerance, completeDimension[0], PRO_VALUE_UNUSED);
+		if (!isBasicDimension)
+		{
+			ProWstring tolerance = getTolerance();
+			ProWstringConcatenate(tolerance, completeDimension[0], PRO_VALUE_UNUSED);
+		}
 	}
 
-	ProWstringConcatenate(afterAtSymbol[0], completeDimension[0], PRO_VALUE_UNUSED);
+	int len;
+	ProWstringLengthGet(afterAtSymbol[0], &len);
+	ProWstringConcatenate(afterAtSymbol[0], completeDimension[0], len - 1); // hack: without the last character which unknowingly is space
 
 	ProArrayFree((ProArray*)&beforeAtSymbol);
 	ProArrayFree((ProArray*)&afterAtSymbol);
@@ -62,11 +73,10 @@ void Dimension::splitDimension()
 {
 	ProLine* dim_text;
 	ProDimensionTextGet(&dimension, &dim_text);
-	char dim_char_arr[PRO_COMMENT_SIZE];
+	static char dim_char_arr[PRO_COMMENT_SIZE];
 	ProWstringToString(dim_char_arr, dim_text[0]);
 	char* beforeDimSymbol = dim_char_arr;
 	char* afterDimSymbol;
-
 	for (int i = 0; i < PRO_COMMENT_SIZE - 1; i++)
 	{
 		if ((dim_char_arr[i] == '@') && ((dim_char_arr[i + 1] == 'D')))
