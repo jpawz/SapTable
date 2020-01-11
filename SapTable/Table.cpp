@@ -50,7 +50,9 @@ void Table::createSapTable()
 		ProDwgtableRowAdd(&table, 1, 1, 0.7);
 
 	ProDwgtableRowAdd(&table, 11, 1, 0.3);
+	ProDwgtableCellsMerge(&table, 1, 12, 2, 12, 1);
 	ProDwgtableRowAdd(&table, 12, 1, 0.3);
+	ProDwgtableCellsMerge(&table, 1, 13, 2, 13, 1);
 }
 
 void Table::prepareFirstColumn()
